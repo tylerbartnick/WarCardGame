@@ -94,5 +94,16 @@ namespace WarCardGame.Helpers {
             Console.ReadLine();
             return userInput;
         }
+
+        /// <summary>
+        /// Reads input from the user, but only considers pressing the ENTER key to be 
+        /// valid input.
+        /// </summary>
+        public static void ForceUserToPressEnterKey() {
+            ConsoleKeyInfo keyInfo;
+            do {
+                keyInfo = Console.ReadKey();
+            } while (keyInfo.Key != ConsoleKey.Enter);
+        }
     }
 }

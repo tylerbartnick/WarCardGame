@@ -85,6 +85,8 @@ namespace WarCardGame.Models {
                 }
             } while (!GameOver());
             DisplayGameResults();
+            Console.WriteLine("Press enter to exit the program.");
+            InputHelpers.ForceUserToPressEnterKey();
         }
 
         /// <summary>
