@@ -90,7 +90,7 @@ namespace WarCardGame.Models {
         /// <summary>
         /// Plays the next turn in the game.
         /// </summary>
-        public void NextTurn() {
+        private void NextTurn() {
             totalTurns++;
 
             // the play area represents the area on the "table" where all cards would
@@ -181,7 +181,7 @@ namespace WarCardGame.Models {
         /// </summary>
         /// <param name="player">An instance of Player</param>
         /// <returns>boolean</returns>
-        public bool PlayerHasEnoughCardsForWar(Player player) {
+        private bool PlayerHasEnoughCardsForWar(Player player) {
             if (player.Deck.Count < MIN_CARDS_FOR_WAR)
                 return false;
             return true;
