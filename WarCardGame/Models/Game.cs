@@ -20,6 +20,9 @@ namespace WarCardGame.Models {
         /// <value>Constant denoting the minimum cards a player needs on hand to engage opponent in war.</value>
         public const int MIN_CARDS_FOR_WAR = 2;
 
+        /// <value>Constant denoting the interval at which each player shuffles their decks to reduce total game time.</value>
+        private const int SHUFFLE_INTERVAL = 25;
+
         /// <value>Constant string inserted before all new output to help keep a visual hierarchy.</value>
         public const string SEPERATOR = "---------------------------------------------";
 
@@ -64,6 +67,10 @@ namespace WarCardGame.Models {
                     case 'c':
                         Console.Clear();
                         break;
+                    case 'F':
+                    case 'f':
+                        RunInBatchMode();
+                        break;
                     case 'H':
                     case 'h':
                         DisplayGameInstructions();
@@ -73,7 +80,7 @@ namespace WarCardGame.Models {
                         ForceGameOver();
                         break;
                     default:
-                        Console.WriteLine("Invalid input, please enter \"n\", \"v\", \"c\", \"h\", or \"q\".");
+                        Console.WriteLine("Invalid input, please enter \"n\", \"v\", \"f\", \"c\", \"h\", or \"q\".");
                         break;
                 }
             } while (!GameOver());
@@ -154,6 +161,19 @@ namespace WarCardGame.Models {
             Console.WriteLine($"{Player2.Name} played: " + p2Card);
             Console.WriteLine($"Turns taken: {totalTurns}");
             playArea.Clear();
+
+            // A game of War without shuffling each player's deck every so often can run indefinitely (or seem to).
+            // Some variants of the classic game suggest that a player must shuffle their deck at various
+            // intervals or when they have used all of their cards before using the cards they have won
+            // since the last time they shuffled.
+            // Since a previously run simulation has taken upwards of 3.2 million turns, a good middle ground
+            // is to shuffle on a specified interval. This greatly improves the speed of a game.
+            // Most of the games that use this logic end well before 1000 turns.
+            if (totalTurns % SHUFFLE_INTERVAL == 0) {
+                ShufflePlayerDeck(Player1);
+                ShufflePlayerDeck(Player2);
+            }
+
         }
 
         /// <summary>
@@ -183,6 +203,26 @@ namespace WarCardGame.Models {
         private void ForceGameOver() {
             Player1.Deck.Clear();
             Player2.Deck.Clear();
+        }
+
+        /// <summary>
+        /// Runs game in a non-interactive state, continually playing the next turn until a winner is decided.
+        /// </summary>
+        private void RunInBatchMode() {
+            while (!GameOver()) {
+                NextTurn();
+            }
+        }
+
+        /// <summary>
+        /// Shuffles the deck of a player.
+        /// </summary>
+        /// <param name="player">The player who's deck is to be shuffled.</param>
+        private void ShufflePlayerDeck(Player player) {
+            List<Card> pDeck = player.Deck.ToList();
+            DeckManager.Shuffle(pDeck);
+            player.Deck = new Queue<Card>();
+            player.AddCardsToDeck(pDeck);
         }
 
         /// <summary>
@@ -220,6 +260,7 @@ namespace WarCardGame.Models {
             Console.WriteLine("Enter your choice: ");
             Console.WriteLine("N) Next turn");
             Console.WriteLine("V) View score");
+            Console.WriteLine("F) Finish game in batch mode");
             Console.WriteLine("C) Clear screen");
             Console.WriteLine("H) Help");
             Console.WriteLine("Q) Quit");
